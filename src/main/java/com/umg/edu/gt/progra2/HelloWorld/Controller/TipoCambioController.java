@@ -16,15 +16,12 @@ public class TipoCambioController {
     private TipoCambioSoapService tipoCambioSoapService;
 
     /**
-     * Endpoint to fetch the exchange rate range from the SOAP service.
-     *
-     * @param fechaInicio The start date for the exchange rate range (format: yyyy-MM-dd).
-     * @param fechaFin The end date for the exchange rate range (format: yyyy-MM-dd).
-     * @return JSON response with the exchange rate data for the given range.
+     *  fechaInicio  (format: yyyy-MM-dd).
+     *  fechaFin  (format: yyyy-MM-dd).
      */
     @GetMapping("/tipoCambioRango")
     public ResponseEntity<Object> obtenerTipoCambioRango(@RequestParam String fechaInicio, @RequestParam String fechaFin) {
-        // Llamada al servicio SOAP para obtener el tipo de cambio en el rango de fechas
+        // Llamada al servicio SOAP
         String response = tipoCambioSoapService.obtenerTipoCambioRango(fechaInicio, fechaFin);
 
         // Si la respuesta contiene un error, devolver un estado 500 con el mensaje de error
@@ -33,7 +30,7 @@ public class TipoCambioController {
         }
 
         try {
-            // Convertir la respuesta SOAP XML en un objeto JSON
+            // Convertir en un objeto JSON
             JSONObject xmlJSONObj = XML.toJSONObject(response);
 
             // Extraer los datos específicos del resultado (ajustar según la estructura de tu XML SOAP)
@@ -45,11 +42,11 @@ public class TipoCambioController {
             // Log para depuración (opcional)
             System.out.println("TipoCambioRangoResult: " + tipoCambioRangoResult);
 
-            // Devolver el objeto JSON extraído como respuesta
+
             return ResponseEntity.ok(tipoCambioRangoResult);
 
         } catch (Exception e) {
-            // Imprimir el stack trace en caso de error y devolver una respuesta de error
+
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error procesando la respuesta XML: " + e.getMessage());
         }
