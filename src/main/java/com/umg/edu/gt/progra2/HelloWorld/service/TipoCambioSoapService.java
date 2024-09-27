@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class TipoCambioSoapService {
 
@@ -20,12 +23,11 @@ public class TipoCambioSoapService {
     private RestTemplate restTemplate;
 
     public String obtenerTipoCambioRango(String fechaInicio, String fechaFin) {
-        logger.info("Iniciando solicitud para obtener el tipo de cambio entre {} y {}", fechaInicio, fechaFin);
+        // No es necesario formatear aquí si el DTO ya lo hace
+        String fechaInicioFormatted = fechaInicio;
+        String fechaFinFormatted = fechaFin;
 
-        String fechaInicioFormatted = formatDate(fechaInicio);
-        String fechaFinFormatted = formatDate(fechaFin);
-
-        // Estructura del SOAP request corregida
+        // Estructura del SOAP request
         String soapRequest =
                 "<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' " +
                         "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " +
@@ -61,16 +63,15 @@ public class TipoCambioSoapService {
     }
 
     private String formatDate(String date) {
-        // Convertir yyyy-MM-dd a dd/MM/yyyy
-        String[] parts = date.split("-");
-        if (parts.length == 3) {
-            logger.debug("Formato de fecha antes de la conversión: {}", date);
-            String formattedDate = parts[2] + "/" + parts[1] + "/" + parts[0];
-            logger.debug("Formato de fecha después de la conversión: {}", formattedDate);
-            return formattedDate;
-        } else {
-            logger.warn("Formato de fecha incorrecto: {}", date);
-            return date; // Devolver la fecha original si el formato es incorrecto
+        try {
+            // Convertir yyyy-MM-dd a dd/MM/yyyy
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate localDate = LocalDate.parse(date, inputFormatter);
+            return localDate.format(outputFormatter);
+        } catch (Exception e) {
+            logger.warn("Error al formatear la fecha: {}", e.getMessage(), e);
+            return date; // Devolver la fecha original si hay un error en el formato
         }
     }
 }
